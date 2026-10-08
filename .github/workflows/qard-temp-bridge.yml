@@ -15,15 +15,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Copy verified Qard APK
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Fetch verified Qard APK from GitHub release asset
         shell: bash
         run: |
           set -euo pipefail
-          gh release download qard-v0.4.2-debug --repo hadzha3-lab/Qard --pattern 'Qard-v0.4.2-debug.apk' --pattern 'Qard-v0.4.2-debug.sha256'
-          sha256sum -c Qard-v0.4.2-debug.sha256
+          curl -fL 'https://release-assets.githubusercontent.com/github-production-release-asset/1410130433/c0276ee7-a186-423a-8864-26e5662de9ac?sp=r&sv=2018-11-09&sr=b&spr=https&se=2026-10-08T14%3A59%3A25Z&rscd=attachment%3B+filename%3DQard-v0.4.2-debug.apk&rsct=application%2Fvnd.android.package-archive&skoid=96c2d410-5711-43a1-aedd-ab1947aa7ab0&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skt=2026-10-08T13%3A58%3A57Z&ske=2026-10-08T14%3A59%3A25Z&sks=b&skv=2018-11-09&sig=9bPB6%2F72pgNxbNzg%2FImlyk304XuPltQe1EIwGxbTePY%3D' -o Qard-v0.4.2-debug.apk
           test "$(stat -c %s Qard-v0.4.2-debug.apk)" -eq 84162364
+          echo 'cc07f2cf5b968353bf3cb873620af753329cf074a7e6c25e8f970c609df6a0cb  Qard-v0.4.2-debug.apk' | sha256sum -c -
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add Qard-v0.4.2-debug.apk
