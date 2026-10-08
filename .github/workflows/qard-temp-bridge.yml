@@ -1,0 +1,31 @@
+name: Qard Temporary APK Bridge
+
+on:
+  push:
+    paths:
+      - '.github/workflows/qard-temp-bridge.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy verified Qard APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release download qard-v0.4.2-debug --repo hadzha3-lab/Qard --pattern 'Qard-v0.4.2-debug.apk' --pattern 'Qard-v0.4.2-debug.sha256'
+          sha256sum -c Qard-v0.4.2-debug.sha256
+          test "$(stat -c %s Qard-v0.4.2-debug.apk)" -eq 84162364
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Qard-v0.4.2-debug.apk
+          git commit -m 'Temporary Qard APK delivery'
+          git push origin HEAD:main
